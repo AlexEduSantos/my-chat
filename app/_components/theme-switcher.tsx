@@ -1,15 +1,17 @@
 "use client";
 
 import { useTheme } from "next-themes";
+import { Button } from "./ui/button";
+import { ContrastIcon } from "lucide-react";
 
 function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
 
   return (
     <div>
-      <button onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
-        Alternar tema
-      </button>
+      <Button onClick={() => setTheme(theme === "light" ? "dark" : "light")} variant="ghost">
+        <ContrastIcon />
+      </Button>
     </div>
   );
 }
