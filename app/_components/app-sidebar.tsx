@@ -12,7 +12,13 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar";
-import { EllipsisVerticalIcon, LogOutIcon, SettingsIcon } from "lucide-react";
+import {
+  EllipsisVerticalIcon,
+  LogOutIcon,
+  MoonIcon,
+  SettingsIcon,
+  SunIcon,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -21,10 +27,12 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useRooms } from "../_viewmodels/use-rooms";
+import { useTheme } from "next-themes";
 
 const AppSidebar = () => {
   const { user, isLoading } = useUser();
   const { rooms, isLoading: isLoadingRooms } = useRooms();
+  const { theme, setTheme } = useTheme();
 
   if (isLoading) return <>Carregando...</>;
   if (!user) return <>Usuário nao autenticado</>;
@@ -69,6 +77,19 @@ const AppSidebar = () => {
                     <p>Settings</p>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
+                    {theme === "light" ? (
+                      <div onClick={() => setTheme("dark")} className="p-0 flex gap-2">
+                        <MoonIcon className="w-4 h-4 mr-2" />
+                        <p>Tema Escuro</p>
+                      </div>
+                    ) : (
+                      <div onClick={() => setTheme("light")} className="p-0 flex gap-2">
+                        <SunIcon className="w-4 h-4 mr-2" />
+                        <p>Tema Claro</p>
+                      </div>
+                    )}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
                     <LogOutIcon className="w-4 h-4 mr-2" />
                     <p>Logout</p>
                   </DropdownMenuItem>
@@ -83,15 +104,15 @@ const AppSidebar = () => {
             <SidebarMenu className="">
               {rooms!.map((room) => (
                 <SidebarMenuItem key={room.id} className="p-2">
-                  <SidebarMenuButton className="px-4">#{room.room_name}</SidebarMenuButton>{" "}
+                  <SidebarMenuButton className="px-4">
+                    #{room.room_name}
+                  </SidebarMenuButton>{" "}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter className="w-full flex items-end p-2">
-          <ThemeSwitcher />
-        </SidebarFooter>
+        <SidebarFooter className="w-full flex items-end p-2"></SidebarFooter>
       </Sidebar>
     </>
   );

@@ -9,8 +9,9 @@ function ThemeSwitcher() {
 
   return (
     <div>
-      <Button onClick={() => setTheme(theme === "light" ? "dark" : "light")} variant="ghost">
+      <Button onClick={() => setTheme(theme === "light" ? "dark" : "light")} variant="ghost" className="">
         <ContrastIcon />
+        <p>Alterar tema</p>
       </Button>
     </div>
   );
