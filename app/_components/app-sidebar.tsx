@@ -5,6 +5,8 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -18,14 +20,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { useRooms } from "../_viewmodels/use-rooms";
 
 const AppSidebar = () => {
   const { user, isLoading } = useUser();
+  const { rooms, isLoading: isLoadingRooms } = useRooms();
 
   if (isLoading) return <>Carregando...</>;
   if (!user) return <>Usuário nao autenticado</>;
 
-  console.log(user);
+  if (isLoadingRooms) return <>Carregando salas...</>;
+  console.log(rooms);
 
   return (
     <>
@@ -72,7 +77,18 @@ const AppSidebar = () => {
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarHeader>
-        <SidebarContent></SidebarContent>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-lg">Salas</SidebarGroupLabel>
+            <SidebarMenu className="">
+              {rooms!.map((room) => (
+                <SidebarMenuItem key={room.id} className="p-2">
+                  <SidebarMenuButton className="px-4">#{room.room_name}</SidebarMenuButton>{" "}
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
         <SidebarFooter className="w-full flex items-end p-2">
           <ThemeSwitcher />
         </SidebarFooter>

@@ -1,9 +1,9 @@
 "use client";
 
 import { ThemeProvider } from "next-themes";
-import { SidebarProvider, SidebarTrigger } from "../_components/ui/sidebar";
-import AppSidebar from "../_components/app-sidebar";
-import { QueryProvider } from "../_components/_utils/query-provider";
+import { SidebarProvider, SidebarTrigger } from "../../_components/ui/sidebar";
+import AppSidebar from "../../_components/app-sidebar";
+import { QueryProvider } from "../../_components/_utils/query-provider";
 
 export default function PagesLayout({
   children,

@@ -19,7 +19,7 @@ export async function GET() {
   const { data: rooms, error: roomsError } = await supabase
     .from("rooms")
     .select("*")
-    .filter("oowner", "eq", user.id);
+    .filter("owner", "eq", user.id);
 
   if (roomsError) {
     return NextResponse.json(
