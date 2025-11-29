@@ -19,7 +19,7 @@ export async function GET() {
   const { data: rooms, error: roomsError } = await supabase
     .from("rooms")
     .select("*")
-    .filter("owner", "eq", user.id);
+    .or(`owner.eq.${user.id},members.cs.{${user.id}}`);
 
   if (roomsError) {
     return NextResponse.json(
@@ -29,4 +29,88 @@ export async function GET() {
   }
 
   return NextResponse.json(rooms);
+}
+
+export async function POST(req: Request) {
+  const supabase = await createClient();
+
+  const body = await req.json();
+  const { name } = body;
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: "Usuário não autenticado" },
+      { status: 401 }
+    );
+  }
+
+  const { data: room, error: roomError } = await supabase
+    .from("rooms")
+    .insert({ room_name: name, owner: user.id })
+    .select();
+
+  if (roomError) {
+    return NextResponse.json({ error: "Erro ao criar sala" }, { status: 500 });
+  }
+
+  return NextResponse.json(room);
+}
+
+export async function DELETE(req: Request) {
+  const supabase = await createClient();
+
+  const body = await req.json();
+  const { id } = body;
+
+  const { data: room, error: roomError } = await supabase
+    .from("rooms")
+    .delete()
+    .eq("id", id)
+    .select();
+
+  if (roomError) {
+    return NextResponse.json(
+      { error: "Erro ao deletar sala" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(req: Request) {
+  const supabase = await createClient();
+
+  const body = await req.json();
+  const { id, name } = body;
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: "Usuário não autenticado" },
+      { status: 401 }
+    );
+  }
+
+  const { data: room, error: roomError } = await supabase
+    .from("rooms")
+    .update({ room_name: name })
+    .eq("id", id)
+    .select();
+
+  if (roomError) {
+    return NextResponse.json(
+      { error: "Erro ao atualizar sala" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json(room);
 }

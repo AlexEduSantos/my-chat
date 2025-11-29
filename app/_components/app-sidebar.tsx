@@ -16,6 +16,7 @@ import {
   EllipsisVerticalIcon,
   LogOutIcon,
   MoonIcon,
+  PlusIcon,
   SettingsIcon,
   SunIcon,
 } from "lucide-react";
@@ -28,17 +29,32 @@ import {
 } from "./ui/dropdown-menu";
 import { useRooms } from "../_viewmodels/use-rooms";
 import { useTheme } from "next-themes";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { Input } from "./ui/input";
 
 const AppSidebar = () => {
   const { user, isLoading } = useUser();
-  const { rooms, isLoading: isLoadingRooms } = useRooms();
+  const {
+    rooms,
+    isLoading: isLoadingRooms,
+    refetchRooms,
+    roomUpdate,
+    roomDelete,
+    createNewRoom,
+  } = useRooms();
   const { theme, setTheme } = useTheme();
 
   if (isLoading) return <>Carregando...</>;
   if (!user) return <>Usuário nao autenticado</>;
 
   if (isLoadingRooms) return <>Carregando salas...</>;
-  console.log(rooms);
 
   return (
     <>
@@ -78,12 +94,18 @@ const AppSidebar = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     {theme === "light" ? (
-                      <div onClick={() => setTheme("dark")} className="p-0 flex gap-2">
+                      <div
+                        onClick={() => setTheme("dark")}
+                        className="p-0 flex gap-2"
+                      >
                         <MoonIcon className="w-4 h-4 mr-2" />
                         <p>Tema Escuro</p>
                       </div>
                     ) : (
-                      <div onClick={() => setTheme("light")} className="p-0 flex gap-2">
+                      <div
+                        onClick={() => setTheme("light")}
+                        className="p-0 flex gap-2"
+                      >
                         <SunIcon className="w-4 h-4 mr-2" />
                         <p>Tema Claro</p>
                       </div>
@@ -100,13 +122,76 @@ const AppSidebar = () => {
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel className="text-lg">Salas</SidebarGroupLabel>
+            <div className="flex justify-between items-center">
+              <SidebarGroupLabel className="text-lg">Salas</SidebarGroupLabel>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" className="p-0">
+                    <PlusIcon className="w-4 h-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Novo Chat</DialogTitle>
+                  </DialogHeader>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+
+                      const form = e.currentTarget;
+                      const formData = new FormData(form);
+
+                      const roomName = formData.get("roomName") as string;
+                      if (!roomName || roomName.trim() === "") {
+                        alert("Nome obrigatório");
+                        return;
+                      }
+
+                      createNewRoom.mutate(roomName);
+
+                      form.reset();
+                    }}
+                  >
+                    <Input
+                      placeholder="Nome da sala"
+                      id="name"
+                      required
+                      name="roomName"
+                    />
+                    <DialogClose asChild>
+                      <Button type="submit">Criar</Button>
+                    </DialogClose>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
             <SidebarMenu className="">
               {rooms!.map((room) => (
-                <SidebarMenuItem key={room.id} className="p-2">
-                  <SidebarMenuButton className="px-4">
+                <SidebarMenuItem key={room.id} className="pl-2 py-2">
+                  <SidebarMenuButton className="pl-4 flex justify-between">
                     #{room.room_name}
-                  </SidebarMenuButton>{" "}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <EllipsisVerticalIcon className="w-4 h-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="">
+                        <DropdownMenuItem className="text-destructive">
+                          <p>Sair da Sala</p>
+                        </DropdownMenuItem>
+                        {user.id === room.owner && (
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => {
+                              roomDelete.mutate(room.id);
+                              refetchRooms();
+                            }}
+                          >
+                            <p>Deletar Sala</p>
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

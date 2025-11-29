@@ -1,5 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { getRooms } from "../_service/rooms-service";
+import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import {
+  createRoom,
+  deleteRoom,
+  getRooms,
+  updateRoom,
+} from "../_service/rooms-service";
 
 export function useRooms() {
   const {
@@ -11,5 +16,51 @@ export function useRooms() {
     queryFn: getRooms,
   });
 
-  return { rooms, isLoading, refetchRooms };
+  const queryclient = new QueryClient();
+
+  const createNewRoom = useMutation({
+    mutationFn: (name: string) => createRoom(name),
+    onSuccess: () => {
+      queryclient.invalidateQueries({
+        queryKey: ["rooms"],
+      });
+      queryclient.refetchQueries({
+        queryKey: ["rooms"],
+      });
+    },
+  });
+
+  const roomUpdate = useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) =>
+      updateRoom(id, name),
+    onSuccess: () => {
+      queryclient.invalidateQueries({
+        queryKey: ["rooms"],
+      });
+      queryclient.refetchQueries({
+        queryKey: ["rooms"],
+      });
+    },
+  });
+
+  const roomDelete = useMutation({
+    mutationFn: (id: string) => deleteRoom(id),
+    onSuccess: () => {
+      queryclient.invalidateQueries({
+        queryKey: ["rooms"],
+      });
+      queryclient.refetchQueries({
+        queryKey: ["rooms"],
+      });
+    },
+  });
+
+  return {
+    rooms,
+    isLoading,
+    refetchRooms,
+    createNewRoom,
+    roomUpdate,
+    roomDelete,
+  };
 }
