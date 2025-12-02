@@ -16,8 +16,8 @@ export default function PagesLayout({
         <ThemeProvider attribute="class" defaultTheme="dark">
           <SidebarProvider>
             <AppSidebar />
-            <main>
-              <SidebarTrigger />
+            <main className="w-dvw h-dvh">
+              <SidebarTrigger className="absolute"/>
               {children}
             </main>
           </SidebarProvider>
