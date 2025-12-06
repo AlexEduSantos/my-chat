@@ -15,3 +15,17 @@ export const getMessages = async (id: string) => {
 
   return res.json();
 };
+
+export const sendMessage = async (message: string, roomId: string) => {
+  const res = await fetch("/api/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ message, roomId }),
+  });
+
+  if (!res.ok) throw new Error("Erro ao enviar mensagem");
+
+  return res.json();
+};

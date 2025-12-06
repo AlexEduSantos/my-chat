@@ -1,4 +1,5 @@
 import { createClient } from "@/app/_lib/server";
+import { metadata } from "@/app/layout";
 import { NextResponse } from "next/server";
 
 // O handler GET recebe o objeto Request e o objeto de contexto
@@ -33,4 +34,45 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(messages);
+}
+
+export async function POST(request: Request) {
+  const supabase = await createClient();
+
+  const body = await request.json();
+  const { message, roomId } = body;
+
+  const { data: user, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return NextResponse.json(
+      { error: "Usuário não autenticado" },
+      { status: 401 }
+    );
+  }
+
+  const metadata = {
+    avatar: user.user.user_metadata.avatar,
+    username: user.user.user_metadata.username,
+  };
+
+  const { data: newMessage, error: messageError } = await supabase
+    .from("messages")
+    .insert({
+      content: message,
+      user: user.user.id,
+      room_id: roomId,
+      metadata: metadata,
+    })
+    .select("*")
+    .single();
+
+  if (messageError) {
+    return NextResponse.json(
+      { error: "Erro ao enviar mensagem" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json(newMessage);
 }
