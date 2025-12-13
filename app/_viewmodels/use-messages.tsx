@@ -12,7 +12,7 @@ export type Message = {
 };
 
 export function useMessages() {
-  const mockRoomId = "97931ba4-c24b-4070-8ab7-6f92774b7461";
+  const mockRoomId = "93b805f1-68e7-4265-9c6c-6d2f7a63c839";
   const [allMessages, setAllMessages] = useState<Message[]>([]);
 
   const {
@@ -41,7 +41,7 @@ export function useMessages() {
           table: "messages",
           filter: `room_id=eq.${mockRoomId}`,
         },
-        (payload) => {
+        (payload: any) => {
           setAllMessages((prev) => [...prev, payload.new as Message]);
         }
       )

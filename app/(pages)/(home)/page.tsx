@@ -1,9 +1,9 @@
-import ChatTest from "@/app/_components/chat";
+import ChatPage from "../test/components/chat-page";
 
 export default function Home() {
   return (
     <div className="w-full h-full ">
-      <ChatTest />
+      <ChatPage />
     </div>
   );
 }
