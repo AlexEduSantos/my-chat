@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { useUser } from "../_viewmodels/use-user";
-import ThemeSwitcher from "./theme-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +18,7 @@ import {
   PlusIcon,
   SettingsIcon,
   SunIcon,
+  UserIcon,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import {
@@ -38,6 +38,7 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Input } from "./ui/input";
+import { rooms } from "../_service/rooms-service";
 
 const AppSidebar = () => {
   const { user, isLoading } = useUser();
@@ -74,7 +75,9 @@ const AppSidebar = () => {
                     />
                   </div>
                 ) : (
-                  "Avatar"
+                  <div className="rounded-full overflow-hidden bg-white">
+                    <UserIcon className="w-10 h-10  text-accent" />
+                  </div>
                 )}
                 <div className="flex flex-col">
                   <h3>{user.username}</h3>
@@ -166,10 +169,10 @@ const AppSidebar = () => {
               </Dialog>
             </div>
             <SidebarMenu className="">
-              {rooms!.map((room) => (
+              {rooms!.map((room: rooms) => (
                 <SidebarMenuItem key={room.id} className="pl-2 py-2">
                   <SidebarMenuButton className="pl-4 flex justify-between">
-                    #{room.room_name}
+                    #{room.name}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <EllipsisVerticalIcon className="w-4 h-4" />
@@ -178,7 +181,7 @@ const AppSidebar = () => {
                         <DropdownMenuItem className="text-destructive">
                           <p>Sair da Sala</p>
                         </DropdownMenuItem>
-                        {user.id === room.owner && (
+                        {user.id === room.creator_id && (
                           <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => {

@@ -1,12 +1,12 @@
 export type rooms = {
   id: string;
-  room_name: string;
-  owner: string;
-  members: [];
-  createdAt: string;
+  name: string;
+  creator_id: string;
+  metadata: {};
+  created_at: string;
 };
 
-export const getRooms = async (): Promise<rooms[]> => {
+export const getRooms = async () => {
   const res = await fetch("/api/rooms", {
     method: "GET",
   });
