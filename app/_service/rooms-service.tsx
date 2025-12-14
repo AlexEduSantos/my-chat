@@ -6,17 +6,20 @@ export type rooms = {
   created_at: string;
 };
 
-export const getRooms = async () => {
+export const getRooms = async (): Promise<rooms[]> => {
   const res = await fetch("/api/rooms", {
     method: "GET",
   });
 
-  if (!res.ok) throw new Error("Erro ao buscar salas");
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error((body && body.error) || "Erro ao buscar salas");
+  }
 
   return res.json();
 };
 
-export const createRoom = async (name: string) => {
+export const createRoom = async (name: string): Promise<rooms> => {
   const res = await fetch("/api/rooms", {
     method: "POST",
     headers: {
@@ -25,12 +28,15 @@ export const createRoom = async (name: string) => {
     body: JSON.stringify({ name }),
   });
 
-  if (!res.ok) throw new Error("Erro ao criar sala");
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error((body && body.error) || "Erro ao criar sala");
+  }
 
   return res.json();
 };
 
-export const updateRoom = async (id: string, name: string) => {
+export const updateRoom = async (id: string, name: string): Promise<rooms> => {
   const res = await fetch("/api/rooms", {
     method: "PATCH",
     headers: {
@@ -39,12 +45,15 @@ export const updateRoom = async (id: string, name: string) => {
     body: JSON.stringify({ id, name }),
   });
 
-  if (!res.ok) throw new Error("Erro ao atualizar sala");
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error((body && body.error) || "Erro ao atualizar sala");
+  }
 
   return res.json();
 };
 
-export const deleteRoom = async (id: string) => {
+export const deleteRoom = async (id: string): Promise<rooms> => {
   const res = await fetch("/api/rooms", {
     method: "DELETE",
     headers: {
@@ -53,5 +62,10 @@ export const deleteRoom = async (id: string) => {
     body: JSON.stringify({ id }),
   });
 
-  if (!res.ok) throw new Error("Erro ao deletar sala");
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error((body && body.error) || "Erro ao deletar sala");
+  }
+
+  return res.json();
 };

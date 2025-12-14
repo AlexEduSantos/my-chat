@@ -18,7 +18,7 @@ export async function GET() {
 
   const { data: rooms, error: roomsError } = await supabase
     .from("rooms")
-    .select("*")
+    .select("*");
 
   if (roomsError) {
     return NextResponse.json(
@@ -50,11 +50,29 @@ export async function POST(req: Request) {
 
   const { data: room, error: roomError } = await supabase
     .from("rooms")
-    .insert({ room_name: name, owner: user.id })
-    .select();
+    .insert({ name: name, creator_id: user.id })
+    .select()
+    .single();
 
   if (roomError) {
     return NextResponse.json({ error: "Erro ao criar sala" }, { status: 500 });
+  }
+
+  const { data: roomMember, error: roomMemberError } = await supabase
+    .from("room_members")
+    .insert({
+      user_id: user.id,
+      room_id: room.id,
+      user_name: user.user_metadata.username,
+    })
+    .select()
+    .single();
+
+  if (roomMemberError) {
+    return NextResponse.json(
+      { error: "Erro ao criar membro da sala" },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json(room);
@@ -66,11 +84,24 @@ export async function DELETE(req: Request) {
   const body = await req.json();
   const { id } = body;
 
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return NextResponse.json(
+      { error: "Usuário não autenticado" },
+      { status: 401 }
+    );
+  }
+
   const { data: room, error: roomError } = await supabase
     .from("rooms")
     .delete()
     .eq("id", id)
-    .select();
+    .select()
+    .single();
 
   if (roomError) {
     return NextResponse.json(
@@ -78,6 +109,8 @@ export async function DELETE(req: Request) {
       { status: 500 }
     );
   }
+
+  return NextResponse.json(room);
 }
 
 export async function PATCH(req: Request) {
@@ -100,9 +133,10 @@ export async function PATCH(req: Request) {
 
   const { data: room, error: roomError } = await supabase
     .from("rooms")
-    .update({ room_name: name })
+    .update({ name })
     .eq("id", id)
-    .select();
+    .select()
+    .single();
 
   if (roomError) {
     return NextResponse.json(
