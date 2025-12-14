@@ -39,6 +39,7 @@ export const RealtimeChat = ({
     messages: realtimeMessages,
     sendMessage,
     isConnected,
+    isLoading,
   } = useRealtimeChat({
     roomName,
     username,
@@ -84,7 +85,21 @@ export const RealtimeChat = ({
     <div className="flex flex-col h-full w-full bg-background text-foreground antialiased">
       {/* Messages */}
       <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-        {allMessages.length === 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center">
+            <svg
+              role="img"
+              aria-label="Loading messages"
+              className="animate-spin h-6 w-6 text-muted-foreground"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+            </svg>
+          </div>
+        ) : allMessages.length === 0 ? (
           <div className="text-center text-sm text-muted-foreground">
             No messages yet. Start the conversation!
           </div>
@@ -111,7 +126,7 @@ export const RealtimeChat = ({
       </div>
 
       <form onSubmit={handleSendMessage} className="flex w-full gap-2 border-t border-border p-4">
-        <Input
+          <Input
           className={cn(
             'rounded-full bg-background text-sm transition-all duration-300',
             isConnected && newMessage.trim() ? 'w-[calc(100%-36px)]' : 'w-full'
@@ -120,7 +135,7 @@ export const RealtimeChat = ({
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Type a message..."
-          disabled={!isConnected}
+          disabled={!isConnected || isLoading}
         />
         {isConnected && newMessage.trim() && (
           <Button

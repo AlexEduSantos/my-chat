@@ -1,21 +1,19 @@
 "use client";
 import { RealtimeChat } from "@/app/_components/realtime-chat";
-import { useMessages } from "@/app/_viewmodels/use-messages";
 import { useUser } from "@/app/_viewmodels/use-user";
+import { useDataContext } from "./_utils/data-context";
 
 const ChatPage = () => {
-  const { messages, isLoading, sendNewMessage } = useMessages();
-  const { user } = useUser();
+  const { user, isLoading } = useUser();
 
-  const roomName = "Geral";
+  const { roomName } = useDataContext();
+  console.log(roomName);
 
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
-  
+  if (isLoading) return;
+
   return (
     <>
-      <RealtimeChat roomName={roomName} username={user?.username || "test"} messages={messages} />
+      <RealtimeChat roomName={roomName} username={user?.username || "test"} />
     </>
   );
 };

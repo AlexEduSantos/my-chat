@@ -39,6 +39,7 @@ import {
 } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { rooms } from "../_service/rooms-service";
+import { useDataContext } from "./_utils/data-context";
 
 const AppSidebar = () => {
   const { user, isLoading } = useUser();
@@ -46,10 +47,12 @@ const AppSidebar = () => {
     rooms,
     isLoading: isLoadingRooms,
     refetchRooms,
-    roomUpdate,
     roomDelete,
     createNewRoom,
   } = useRooms();
+
+  const { setRoomName } = useDataContext();
+
   const { theme, setTheme } = useTheme();
 
   if (isLoading) return <>Carregando...</>;
@@ -171,7 +174,10 @@ const AppSidebar = () => {
             <SidebarMenu className="">
               {rooms!.map((room: rooms) => (
                 <SidebarMenuItem key={room.id} className="pl-2 py-2">
-                  <SidebarMenuButton className="pl-4 flex justify-between">
+                  <SidebarMenuButton
+                    className="pl-4 flex justify-between"
+                    onClick={() => setRoomName(room.name)}
+                  >
                     #{room.name}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
