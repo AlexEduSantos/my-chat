@@ -1,4 +1,4 @@
-import ChatPage from "./components/chat-page";
+import ChatPage from "../../_components/chat-page";
 
 const PageTest = () => {
   return (
