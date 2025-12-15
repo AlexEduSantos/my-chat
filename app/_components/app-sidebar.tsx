@@ -157,6 +157,7 @@ const AppSidebar = () => {
 
                       form.reset();
                     }}
+                    className="flex flex-col gap-2 items-end"
                   >
                     <Input
                       placeholder="Nome da sala"
@@ -164,9 +165,16 @@ const AppSidebar = () => {
                       required
                       name="roomName"
                     />
-                    <DialogClose asChild>
-                      <Button type="submit">Criar</Button>
-                    </DialogClose>
+                    <div className="flex justify-end gap-2 max-w-full">
+                      <DialogClose asChild>
+                        <Button type="reset" variant="outline" className="w-full">
+                          Cancelar
+                        </Button>
+                      </DialogClose>
+                      <DialogClose asChild>
+                        <Button type="submit" className="w-full">Criar</Button>
+                      </DialogClose>
+                    </div>
                   </form>
                 </DialogContent>
               </Dialog>
@@ -178,7 +186,7 @@ const AppSidebar = () => {
                     className="pl-4 flex justify-between"
                     onClick={() => setRoomName(room.name)}
                   >
-                    #{room.name}
+                    # {room.name}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <EllipsisVerticalIcon className="w-4 h-4" />
