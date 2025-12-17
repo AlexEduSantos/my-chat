@@ -130,12 +130,27 @@ export const RealtimeChat = ({
             const prevMessage = index > 0 ? allMessages[index - 1] : null;
             const showHeader =
               !prevMessage || prevMessage.user.name !== message.user.name;
+            const showDateSeparator =
+              !prevMessage ||
+              new Date(prevMessage.created_at).toDateString() !==
+                new Date(message.created_at).toDateString();
 
             return (
               <div
                 key={message.id}
                 className="animate-in fade-in slide-in-from-bottom-4 duration-300"
               >
+                {showDateSeparator && (
+                  <div className="flex justify-center my-2">
+                    <div className="text-xs text-muted-foreground px-2 py-0.5 rounded-full bg-muted/10">
+                      {new Date(message.created_at).toLocaleDateString("pt-BR", {
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </div>
+                  </div>
+                )}
                 <ChatMessageItem
                   message={message}
                   isOwnMessage={message.user.name === username}
