@@ -76,3 +76,48 @@ export async function POST(request: Request) {
 
   return NextResponse.json(newMessage);
 }
+
+export async function DELETE(request: Request) {
+  const supabase = await createClient();
+
+  const body = await request.json();
+  const { id } = body;
+
+  const { error: deleteError } = await supabase
+    .from("messages")
+    .delete()
+    .eq("id", id);
+
+  if (deleteError) {
+    return NextResponse.json(
+      { error: "Erro ao deletar mensagem" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json(
+    { message: "Mensagem deletada com sucesso" },
+    { status: 200 }
+  );
+}
+
+export async function PATCH(request: Request) {
+  const supabase = await createClient();
+
+  const body = await request.json();
+  const { id, content } = body;
+
+  const { error: updateError } = await supabase
+    .from("messages")
+    .update({ content })
+    .eq("id", id);
+
+  if (updateError) {
+    return NextResponse.json(
+      { error: "Erro ao atualizar mensagem" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ message: "Mensagem atualizada com sucesso" });
+}
