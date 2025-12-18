@@ -1,10 +1,11 @@
-import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createRoom,
   deleteRoom,
   getRooms,
   updateRoom,
 } from "../_service/rooms-service";
+import { getMembers } from "../_service/members-service";
 
 export function useRooms() {
   const {
@@ -16,15 +17,15 @@ export function useRooms() {
     queryFn: getRooms,
   });
 
-  const queryclient = new QueryClient();
+  const queryClient = useQueryClient();
 
   const createNewRoom = useMutation({
     mutationFn: (name: string) => createRoom(name),
     onSuccess: () => {
-      queryclient.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ["rooms"],
       });
-      queryclient.refetchQueries({
+      queryClient.refetchQueries({
         queryKey: ["rooms"],
       });
     },
@@ -34,10 +35,10 @@ export function useRooms() {
     mutationFn: ({ id, name }: { id: string; name: string }) =>
       updateRoom(id, name),
     onSuccess: () => {
-      queryclient.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ["rooms"],
       });
-      queryclient.refetchQueries({
+      queryClient.refetchQueries({
         queryKey: ["rooms"],
       });
     },
@@ -46,14 +47,15 @@ export function useRooms() {
   const roomDelete = useMutation({
     mutationFn: (id: string) => deleteRoom(id),
     onSuccess: () => {
-      queryclient.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ["rooms"],
       });
-      queryclient.refetchQueries({
+      queryClient.refetchQueries({
         queryKey: ["rooms"],
       });
     },
   });
+
 
   return {
     rooms,
@@ -62,5 +64,46 @@ export function useRooms() {
     createNewRoom,
     roomUpdate,
     roomDelete,
+  };
+}
+
+export type Member = {
+  user_id: string;
+  user_name: string;
+  joined_at: string;
+};
+
+export function useMembers(roomName?: string) {
+  const queryClient = useQueryClient();
+
+  const {
+    data: members,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ["roomMembers", roomName],
+    queryFn: async () => {
+      if (!roomName) return [] as Member[];
+
+      // Garante que a lista de salas esteja disponível: busca se não estiver em cache
+      const rooms = (await queryClient.fetchQuery({ queryKey: ["rooms"], queryFn: getRooms })) as
+        | { id: string; name: string }[]
+        | undefined;
+
+      const room = rooms?.find((r) => r.name === roomName);
+      if (!room) return [] as Member[];
+
+      const members = await getMembers(room.id);
+      return members;
+    },
+    enabled: !!roomName,
+  });
+
+  return {
+    members,
+    isLoading,
+    isError,
+    refetch,
   };
 }
