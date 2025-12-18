@@ -29,3 +29,31 @@ export const sendMessage = async (message: string, roomId: string) => {
 
   return res.json();
 };
+
+export const deleteMessage = async (id: string) => {
+  const res = await fetch("/api/messages", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id }),
+  });
+
+  if (!res.ok) throw new Error("Erro ao deletar mensagem");
+
+  return res.json();
+};
+
+export const updateMessage = async (id: string, message: string) => {
+  const res = await fetch("/api/messages", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id, message }),
+  });
+
+  if (!res.ok) throw new Error("Erro ao atualizar mensagem");
+
+  return res.json();
+};

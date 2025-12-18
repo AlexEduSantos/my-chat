@@ -10,6 +10,7 @@ import {
 import { Button } from "@/app/_components/ui/button";
 import { Input } from "@/app/_components/ui/input";
 import { Send } from "lucide-react";
+import { toast } from "sonner";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ChatHeader from "./chat-header";
 
@@ -39,6 +40,8 @@ export const RealtimeChat = ({
   const {
     messages: realtimeMessages,
     sendMessage,
+    updateMessage,
+    deleteMessage,
     isConnected,
     isLoading,
   } = useRealtimeChat({
@@ -151,10 +154,30 @@ export const RealtimeChat = ({
                     </div>
                   </div>
                 )}
-                <ChatMessageItem
+                      <ChatMessageItem
                   message={message}
                   isOwnMessage={message.user.name === username}
                   showHeader={showHeader}
+                  onEdit={async (id, content) => {
+                    try {
+                      const previous = await updateMessage(id, content);
+                      toast.success("Mensagem atualizada");
+                      return previous;
+                    } catch (err) {
+                      console.error(err);
+                      return undefined;
+                    }
+                  }}
+                  onDelete={async (id) => {
+                    try {
+                      const removed = await deleteMessage(id);
+                      toast.success("Mensagem apagada");
+                      return removed;
+                    } catch (err) {
+                      console.error(err);
+                      return undefined;
+                    }
+                  }}
                 />
               </div>
             );

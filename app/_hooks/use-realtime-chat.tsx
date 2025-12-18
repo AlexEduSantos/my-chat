@@ -16,9 +16,12 @@ export interface ChatMessage {
     name: string;
   };
   created_at: string;
+  updated_at?: string;
 }
 
 const EVENT_MESSAGE_TYPE = "message";
+const EVENT_UPDATE_TYPE = "message:update";
+const EVENT_DELETE_TYPE = "message:delete";
 
 export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
   const supabase = createClient();
@@ -95,9 +98,6 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
           const incoming: ChatMessage = payload.payload as ChatMessage;
           if (!incoming || !incoming.id) return;
 
-          // if (receivedIds.has(incoming.id)) return;
-          // receivedIds.add(incoming.id);
-
           setMessages((current) => {
             // Avoid duplicates just in case
             if (current.find((m) => m.id === incoming.id)) return current;
@@ -106,6 +106,29 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
         } catch (err) {
           // fail silently; optionally log
           console.error("Error handling incoming message payload", err);
+        }
+      })
+      .on("broadcast", { event: EVENT_UPDATE_TYPE }, (payload: any) => {
+        try {
+          const incoming: Partial<ChatMessage> & { id: string } =
+            payload.payload as any;
+          if (!incoming || !incoming.id) return;
+
+          setMessages((current) =>
+            current.map((m) => (m.id === incoming.id ? { ...m, ...incoming } : m))
+          );
+        } catch (err) {
+          console.error("Error handling incoming update payload", err);
+        }
+      })
+      .on("broadcast", { event: EVENT_DELETE_TYPE }, (payload: any) => {
+        try {
+          const incoming: { id: string } = payload.payload as any;
+          if (!incoming || !incoming.id) return;
+
+          setMessages((current) => current.filter((m) => m.id !== incoming.id));
+        } catch (err) {
+          console.error("Error handling incoming delete payload", err);
         }
       })
       .subscribe((status: any) => {
@@ -198,5 +221,96 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
     [isConnected, roomName, supabase, username]
   );
 
-  return { messages, sendMessage, isConnected, isLoading };
+  // Atualizar mensagem
+  const updateMessage = useCallback(
+    async (id: string, content: string) => {
+      const channel = channelRef.current;
+      // guarda o valor anterior pra rollback em caso de falha
+      let previousContent: string | null = null;
+
+      setMessages((current) =>
+        current.map((m) => {
+          if (m.id === id) {
+            previousContent = m.content;
+            return { ...m, content, updated_at: new Date().toISOString() } as ChatMessage;
+          }
+          return m;
+        })
+      );
+
+      try {
+        if (channel && isConnected) {
+          await channel.send({
+            type: "broadcast",
+            event: EVENT_UPDATE_TYPE,
+            payload: { id, content, updated_at: new Date().toISOString() },
+          });
+        }
+
+        const { error } = await supabase
+          .from("messages")
+          .update({ content })
+          .eq("id", id);
+
+        if (error) {
+          throw error;
+        }
+
+        return previousContent;
+      } catch (err) {
+        console.error("Error updating message", err);
+        // rollback
+        setMessages((current) =>
+          current.map((m) => (m.id === id ? { ...m, content: previousContent ?? m.content } : m))
+        );
+        return previousContent;
+      }
+    },
+    [isConnected, supabase]
+  );
+
+  // Deletar mensagem
+  const deleteMessage = useCallback(
+    async (id: string) => {
+      const channel = channelRef.current;
+      // guarda a mensagem para rollback
+      let removed: ChatMessage | null = null;
+
+      setMessages((current) => {
+        const found = current.find((m) => m.id === id) ?? null;
+        removed = found;
+        return current.filter((m) => m.id !== id);
+      });
+
+      try {
+        if (channel && isConnected) {
+          await channel.send({
+            type: "broadcast",
+            event: EVENT_DELETE_TYPE,
+            payload: { id },
+          });
+        }
+
+        const { error } = await supabase.from("messages").delete().eq("id", id);
+
+        if (error) {
+          throw error;
+        }
+
+        return removed;
+      } catch (err) {
+        console.error("Error deleting message", err);
+        // rollback
+        if (removed) {
+          setMessages((current) => [...current, removed!].sort((a, b) => a.created_at.localeCompare(b.created_at)));
+        }
+        return removed;
+      }
+    },
+    [isConnected, supabase]
+  );
+
+
+
+  return { messages, sendMessage, updateMessage, deleteMessage, isConnected, isLoading };
 }
