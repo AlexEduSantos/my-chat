@@ -12,6 +12,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
+import MembersList from "./members-list";
 
 interface ChatHeaderProps {
   roomName: string;
@@ -33,10 +35,24 @@ const ChatHeader = ({ roomName }: ChatHeaderProps) => {
               <UserRoundPlusIcon />
               <p>Convidar pessoas</p>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Users2Icon />
-              <p>Ver participantes</p>
-            </DropdownMenuItem>
+
+            <Dialog>
+              <DialogTrigger asChild>
+                <DropdownMenuItem
+                  onSelect={(e) => {
+                    e.preventDefault();
+                  }}
+                >
+                  <Users2Icon />
+                  <p>Ver participantes</p>
+                </DropdownMenuItem>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogTitle>Membros</DialogTitle>
+                <MembersList />
+              </DialogContent>
+            </Dialog>
+
             <DropdownMenuItem variant="destructive">
               <LogOutIcon />
               <p>Sair da sala</p>
