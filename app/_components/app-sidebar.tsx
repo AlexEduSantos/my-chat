@@ -66,6 +66,8 @@ const AppSidebar = () => {
 
   if (isLoadingRooms) return <>Carregando salas...</>;
 
+  //TODO: refatorar para usar roomId no useDataContext ao invés de roomName, para não ter problemas com rooms com o mesmo nome
+
   return (
     <>
       <Sidebar className="">
