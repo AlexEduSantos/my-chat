@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getUser } from "../_service/user-service";
+import { getAllUsers, getUser } from "../_service/user-service";
 
 export function useUser() {
   const {
@@ -11,5 +11,10 @@ export function useUser() {
     queryFn: getUser,
   });
 
-  return { user, isLoading, refetchUser };
+  const { data: users, isLoading: isLoadingUsers } = useQuery({
+    queryKey: ["users"],
+    queryFn: () => getAllUsers(),
+  });
+
+  return { user, isLoading, refetchUser, users, isLoadingUsers };
 }

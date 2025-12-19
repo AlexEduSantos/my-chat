@@ -56,3 +56,13 @@ export const uploadAvatar = async (
     .getPublicUrl(filePath);
   return [publicUrl.publicUrl];
 };
+
+export const getAllUsers = async (): Promise<UserData[]> => {
+  const res = await fetch("/api/users", {
+    method: "GET",
+  });
+
+  if (!res.ok) throw new Error("Erro ao buscar usuários");
+
+  return res.json();
+};
