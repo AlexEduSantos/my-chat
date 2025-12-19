@@ -7,7 +7,6 @@ const ChatPage = () => {
   const { user, isLoading } = useUser();
 
   const { roomName } = useDataContext();
-  console.log(roomName);
 
   if (isLoading) return;
 
