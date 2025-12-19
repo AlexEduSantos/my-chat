@@ -7,7 +7,20 @@ export type rooms = {
 };
 
 export const getRooms = async (): Promise<rooms[]> => {
-  const res = await fetch("/api/rooms", {
+  const res = await fetch("/api/rooms?isGroup=true", {
+    method: "GET",
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error((body && body.error) || "Erro ao buscar salas");
+  }
+
+  return res.json();
+};
+
+export const getDms = async (): Promise<rooms[]> => {
+  const res = await fetch("/api/rooms?isGroup=false", {
     method: "GET",
   });
 

@@ -1,8 +1,12 @@
 import { createClient } from "@/app/_lib/server";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createClient();
+
+  const { searchParams } = new URL(request.url);
+
+  const isGroup = searchParams.get("isGroup");
 
   const {
     data: { user },
@@ -18,7 +22,8 @@ export async function GET() {
 
   const { data: rooms, error: roomsError } = await supabase
     .from("rooms")
-    .select("*");
+    .select("*")
+    .eq("is_group", isGroup);
 
   if (roomsError) {
     return NextResponse.json(

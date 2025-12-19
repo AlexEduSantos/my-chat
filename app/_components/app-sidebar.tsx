@@ -40,6 +40,8 @@ import {
 import { Input } from "./ui/input";
 import { rooms } from "../_service/rooms-service";
 import { useDataContext } from "./_utils/data-context";
+import { useFriendship } from "../_viewmodels/use-friendship";
+import { Friendships } from "../_service/friendship-service";
 
 const AppSidebar = () => {
   const { user, isLoading } = useUser();
@@ -49,7 +51,11 @@ const AppSidebar = () => {
     refetchRooms,
     roomDelete,
     createNewRoom,
+    dms,
+    isLoadingDms,
   } = useRooms();
+
+  const { friendships, isLoading: isLoadingFriendships } = useFriendship();
 
   const { setRoomName } = useDataContext();
 
@@ -167,12 +173,18 @@ const AppSidebar = () => {
                     />
                     <div className="flex justify-end gap-2 max-w-full">
                       <DialogClose asChild>
-                        <Button type="reset" variant="outline" className="w-full">
+                        <Button
+                          type="reset"
+                          variant="outline"
+                          className="w-full"
+                        >
                           Cancelar
                         </Button>
                       </DialogClose>
                       <DialogClose asChild>
-                        <Button type="submit" className="w-full">Criar</Button>
+                        <Button type="submit" className="w-full">
+                          Criar
+                        </Button>
                       </DialogClose>
                     </div>
                   </form>
@@ -208,6 +220,31 @@ const AppSidebar = () => {
                         )}
                       </DropdownMenuContent>
                     </DropdownMenu>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup>
+            <div className="flex justify-between items-center">
+              <SidebarGroupLabel className="text-lg">Amigos</SidebarGroupLabel>
+            </div>
+            <SidebarMenu className="gap-2">
+              {friendships!.map((friend: Friendships) => (
+                <SidebarMenuItem key={friend.friend_id} className="pl-2">
+                  <SidebarMenuButton
+                    className="px-2 py-6 flex gap-2"
+                    onClick={() => setRoomName(friend.username)}
+                  >
+                    <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                      <Image
+                        src={friend.avatar_url}
+                        alt="Avatar"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    {friend.username}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

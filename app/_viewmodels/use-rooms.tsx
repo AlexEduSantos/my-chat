@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createRoom,
   deleteRoom,
+  getDms,
   getRooms,
   updateRoom,
 } from "../_service/rooms-service";
@@ -15,6 +16,11 @@ export function useRooms() {
   } = useQuery({
     queryKey: ["rooms"],
     queryFn: getRooms,
+  });
+
+  const { data: dms, isLoading: isLoadingDms } = useQuery({
+    queryKey: ["dms"],
+    queryFn: getDms,
   });
 
   const queryClient = useQueryClient();
@@ -63,6 +69,8 @@ export function useRooms() {
     createNewRoom,
     roomUpdate,
     roomDelete,
+    dms,
+    isLoadingDms,
   };
 }
 
