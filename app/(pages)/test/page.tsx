@@ -1,9 +1,9 @@
-import ChatPage from "../../_components/chat-page";
+import MembersList from "@/app/_components/members-list";
 
 const PageTest = () => {
   return (
     <>
-      <ChatPage />
+      <MembersList />
     </>
   );
 };

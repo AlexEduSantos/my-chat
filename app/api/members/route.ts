@@ -15,10 +15,12 @@ export async function GET(request: Request) {
     );
   }
 
-  const { data: members, error: membersError } = await supabase
-    .from("room_members")
-    .select("*")
-    .eq("room_id", roomId);
+  const { data: members, error: membersError } = await supabase.rpc(
+    "get_room_members_with_profiles",
+    {
+      r: roomId,
+    }
+  );
 
   if (membersError) {
     console.error("Supabase error:", membersError);
