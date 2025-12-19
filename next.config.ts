@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: "avatar.iran.liara.run",
+        hostname: "vtujhwdsixcvmhbgbfzo.supabase.co",
       },
     ],
   },
