@@ -6,13 +6,13 @@ import { useDataContext } from "./_utils/data-context";
 const ChatPage = () => {
   const { user, isLoading } = useUser();
 
-  const { roomName } = useDataContext();
+  const { roomId } = useDataContext();
 
   if (isLoading) return;
 
   return (
     <>
-      <RealtimeChat roomName={roomName} username={user?.username || "test"} />
+      <RealtimeChat roomId={roomId} username={user?.username || "test"} />
     </>
   );
 };

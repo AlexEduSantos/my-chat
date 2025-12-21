@@ -84,7 +84,7 @@ export type Member = {
   username: string;
 };
 
-export function useMembers(roomName?: string) {
+export function useMembers(roomId?: string) {
   const queryClient = useQueryClient();
 
   const {
@@ -93,23 +93,14 @@ export function useMembers(roomName?: string) {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["roomMembers", roomName],
+    queryKey: ["roomMembers", roomId],
     queryFn: async () => {
-      if (!roomName) return [] as Member[];
+      if (!roomId) return [] as Member[];
 
-      // Garante que a lista de salas esteja disponível: busca se não estiver em cache
-      const rooms = (await queryClient.fetchQuery({
-        queryKey: ["rooms"],
-        queryFn: getRooms,
-      })) as { id: string; name: string }[] | undefined;
-
-      const room = rooms?.find((r) => r.name === roomName);
-      if (!room) return [] as Member[];
-
-      const members = await getMembers(room.id);
+      const members = await getMembers(roomId);
       return members;
     },
-    enabled: !!roomName,
+    enabled: !!roomId,
   });
 
   return {

@@ -38,7 +38,7 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Input } from "./ui/input";
-import { rooms } from "../_service/rooms-service";
+import { rooms, getOrCreateDm } from "../_service/rooms-service";
 import { useDataContext } from "./_utils/data-context";
 import { useFriendship } from "../_viewmodels/use-friendship";
 import { Friendships } from "../_service/friendship-service";
@@ -57,7 +57,7 @@ const AppSidebar = () => {
 
   const { friendships, isLoading: isLoadingFriendships } = useFriendship();
 
-  const { setRoomName } = useDataContext();
+  const { roomId, setRoomId } = useDataContext();
 
   const { theme, setTheme } = useTheme();
 
@@ -196,7 +196,10 @@ const AppSidebar = () => {
                 <SidebarMenuItem key={room.id} className="pl-2 py-2">
                   <SidebarMenuButton
                     className="pl-4 flex justify-between"
-                    onClick={() => setRoomName(room.name)}
+                    onClick={() => {
+                      if (roomId === room.id) return; // evita atualizações redundantes
+                      setRoomId(room.id);
+                    }}
                   >
                     # {room.name}
                     <DropdownMenu>
@@ -234,7 +237,17 @@ const AppSidebar = () => {
                 <SidebarMenuItem key={friend.friend_id} className="pl-2">
                   <SidebarMenuButton
                     className="px-2 py-6 flex gap-2"
-                    onClick={() => setRoomName(friend.username)}
+                    onClick={async () => {
+                      try {
+                        const room = await getOrCreateDm(friend.friend_id);
+                        if (roomId === room.id) return; // evita loop se já estiver na mesma sala
+                        setRoomId(room.id);
+                        refetchRooms();
+                      } catch (err) {
+                        console.error("Erro ao abrir DM", err);
+                        alert("Erro ao abrir conversa direta");
+                      }
+                    }}
                   >
                     <div className="relative w-8 h-8 rounded-full overflow-hidden">
                       <Image
