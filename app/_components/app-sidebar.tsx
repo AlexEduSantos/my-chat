@@ -101,8 +101,8 @@ const AppSidebar = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
                   <DropdownMenuItem>
-                    <SettingsIcon className="w-4 h-4 mr-2" />
-                    <p>Settings</p>
+                    <UserIcon className="w-4 h-4 mr-2" />
+                    <p>Perfil</p>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     {theme === "light" ? (
@@ -124,7 +124,11 @@ const AppSidebar = () => {
                     )}
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <LogOutIcon className="w-4 h-4 mr-2" />
+                    <SettingsIcon className="w-4 h-4 mr-2" />
+                    <p>Configurações</p>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-destructive">
+                    <LogOutIcon className="w-4 h-4 mr-2 text-destructive" />
                     <p>Logout</p>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
