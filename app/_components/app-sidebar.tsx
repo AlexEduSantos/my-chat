@@ -61,7 +61,7 @@ const AppSidebar = () => {
 
   const { theme, setTheme } = useTheme();
 
-  if (isLoading) return <>Carregando...</>;
+  if (isLoading || isLoadingFriendships) return <>Carregando...</>;
   if (!user) return <>Usuário nao autenticado</>;
 
   if (isLoadingRooms) return <>Carregando salas...</>;
