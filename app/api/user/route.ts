@@ -33,6 +33,7 @@ export async function GET() {
     id: user.id,
     email: user.email,
     username: profile.username,
+    full_name: profile.full_name,
     avatar: profile.avatar_url,
   });
 }
