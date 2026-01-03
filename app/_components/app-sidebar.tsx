@@ -44,6 +44,9 @@ import { useFriendship } from "../_viewmodels/use-friendship";
 import { Friendships } from "../_service/friendship-service";
 import ProfilePortal from "./profile-portal";
 
+// TODO: criar portal para configurações.
+// TODO: configurar rotas para edição de perfil.
+
 const AppSidebar = () => {
   const { user, isLoading } = useUser();
   const {

@@ -23,17 +23,24 @@ import { useUser } from "../_viewmodels/use-user";
 import { useDataContext } from "./_utils/data-context";
 import { Trash2Icon } from "lucide-react";
 
+// TODO: criar portal para convidar usários para a sala.
+// TODO: ajustar portal de participantes da sala.
+
 interface ChatHeaderProps {
   roomId?: string | null;
 }
 
 const ChatHeader = ({ roomId }: ChatHeaderProps) => {
   const { rooms, dms, roomDelete, refetchRooms } = useRooms();
-  const { members, isLoading: membersLoading } = useMembers(roomId ?? undefined);
+  const { members, isLoading: membersLoading } = useMembers(
+    roomId ?? undefined
+  );
   const { user } = useUser();
   const { setRoomId } = useDataContext();
 
-  const room = (rooms || []).find((r) => r.id === roomId) || (dms || []).find((r) => r.id === roomId);
+  const room =
+    (rooms || []).find((r) => r.id === roomId) ||
+    (dms || []).find((r) => r.id === roomId);
 
   const isDm = room && room.is_group === false;
   const other = isDm ? members?.find((m: any) => m.user_id !== user?.id) : null;
@@ -43,7 +50,6 @@ const ChatHeader = ({ roomId }: ChatHeaderProps) => {
     : isDm
     ? other?.full_name ?? other?.user_name ?? other?.username ?? "Conversa"
     : room?.name ?? "Sala";
-
 
   return (
     <div className="px-10 py-6 flex items-center justify-between w-full text-2xl font-bold absolute border-b bg-sidebar z-10">

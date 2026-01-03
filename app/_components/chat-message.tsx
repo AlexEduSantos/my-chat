@@ -5,16 +5,28 @@ import type { ChatMessage } from "@/app/_hooks/use-realtime-chat";
 import { PenIcon, Trash2Icon, CheckIcon, XIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "./ui/dialog";
 import { useState } from "react";
 
 interface ChatMessageItemProps {
   message: ChatMessage;
   isOwnMessage: boolean;
   showHeader: boolean;
-  onEdit?: (id: string, content: string) => Promise<string | null | undefined> | void;
+  onEdit?: (
+    id: string,
+    content: string
+  ) => Promise<string | null | undefined> | void;
   onDelete?: (id: string) => Promise<ChatMessage | null | undefined> | void;
 }
+
+// TODO: Corrigir a aprecição do horário da mensagem, se as mensagens forem em sequencia mas em dias diferentes o horário aparece apenas na primeira mensagem da sequencia.
+// TODO: Adicionar botão de copiar mensagem para o clipboard em mensagens de outros usuários.
 
 export const ChatMessageItem = ({
   message,
@@ -124,10 +136,19 @@ export const ChatMessageItem = ({
                   }}
                 />
                 <div className="flex gap-1">
-                  <Button size="icon" onClick={saveEdit} aria-label="Salvar mensagem">
+                  <Button
+                    size="icon"
+                    onClick={saveEdit}
+                    aria-label="Salvar mensagem"
+                  >
                     <CheckIcon />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={cancelEdit} aria-label="Cancelar edição">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={cancelEdit}
+                    aria-label="Cancelar edição"
+                  >
                     <XIcon />
                   </Button>
                 </div>
@@ -142,7 +163,8 @@ export const ChatMessageItem = ({
           <DialogContent>
             <DialogTitle>Confirmar exclusão</DialogTitle>
             <DialogDescription>
-              Tem certeza que deseja excluir esta mensagem? Esta ação <strong className="underline">não</strong> pode ser desfeita.
+              Tem certeza que deseja excluir esta mensagem? Esta ação{" "}
+              <strong className="underline">não</strong> pode ser desfeita.
             </DialogDescription>
             <DialogFooter className="mt-4">
               <Button variant="ghost" onClick={() => setConfirmOpen(false)}>
