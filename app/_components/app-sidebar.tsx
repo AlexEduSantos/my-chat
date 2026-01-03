@@ -42,6 +42,7 @@ import { rooms, getOrCreateDm } from "../_service/rooms-service";
 import { useDataContext } from "./_utils/data-context";
 import { useFriendship } from "../_viewmodels/use-friendship";
 import { Friendships } from "../_service/friendship-service";
+import ProfilePortal from "./profile-portal";
 
 const AppSidebar = () => {
   const { user, isLoading } = useUser();
@@ -100,9 +101,21 @@ const AppSidebar = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
-                  <DropdownMenuItem>
-                    <UserIcon className="w-4 h-4 mr-2" />
-                    <p>Perfil</p>
+                  <DropdownMenuItem asChild>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost">
+                          <UserIcon className="w-4 h-4 mr-2" />
+                          <p>Perfil</p>
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Editar Perfil</DialogTitle>
+                        </DialogHeader>
+                        <ProfilePortal />
+                      </DialogContent>
+                    </Dialog>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     {theme === "light" ? (
