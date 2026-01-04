@@ -60,7 +60,7 @@ export async function PUT(req: Request) {
     .from("profiles")
     .update({
       username,
-      avatar,
+      avatar_url: avatar,
       updated_at: new Date().toISOString(),
     })
     .eq("id", user.id);

@@ -10,22 +10,34 @@ import { useState } from "react";
 
 const ProfilePortal = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const { user, isLoading } = useUser();
+  const [isUpdating, setIsUpdating] = useState(false);
+  const { user, isLoading, submitUpdateUser } = useUser();
 
   if (isLoading) return <div>Loading...</div>;
-
-  console.log(user);
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+
+        if (isUpdating) {
+          const username = formData.get("username") as string;
+          const avatar = formData.get("avatar") as File;
+          submitUpdateUser({ username, avatar });
+          setIsUpdating(false);
+        } else {
+          const username = formData.get("username") as string;
+          const avatar = undefined;
+          submitUpdateUser({ username, avatar });
+          setIsUpdating(false);
+        }
       }}
     >
       <div className="grid grid-cols-3 gap-4 items-center">
         <div className="relative w-full flex justify-center items-center aspect-square rounded-full overflow-hidden row-span-2">
           <Label
-            htmlFor="avatar-upload"
+            htmlFor="avatar"
             className={`relative w-full aspect-square rounded-full overflow-hidden shadow group ${
               isEditing
                 ? "hover:ring-2 hover:ring-primary/50 cursor-pointer"
@@ -43,7 +55,7 @@ const ProfilePortal = () => {
               <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 {user?.avatar ? (
                   <>
-                  <RefreshCcw className="text-white w-6 h-6" />
+                    <RefreshCcw className="text-white w-6 h-6" />
                   </>
                 ) : (
                   <>
@@ -54,14 +66,16 @@ const ProfilePortal = () => {
             )}
           </Label>
           <Input
-            id="avatar-upload"
+            id="avatar"
             type="file"
+            name="avatar"
             accept="image/*"
             disabled={!isEditing}
             className="hidden"
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (!file) return;
+              setIsUpdating(true);
               const previewUrl = URL.createObjectURL(file);
             }}
           />
@@ -82,7 +96,7 @@ const ProfilePortal = () => {
               id="name-1"
               name="email"
               defaultValue={user?.email}
-              disabled={!isEditing}
+              disabled
             />
           </div>
         </div>

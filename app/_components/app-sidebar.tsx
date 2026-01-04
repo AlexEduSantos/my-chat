@@ -45,7 +45,6 @@ import { Friendships } from "../_service/friendship-service";
 import ProfilePortal from "./profile-portal";
 
 // TODO: criar portal para configurações.
-// TODO: configurar rotas para edição de perfil.
 
 const AppSidebar = () => {
   const { user, isLoading } = useUser();
@@ -78,7 +77,7 @@ const AppSidebar = () => {
             <SidebarMenuItem className="flex justify-between items-center p-2">
               <div className="flex gap-2 items-center">
                 {user.avatar?.length ? (
-                  <div className="relative w-10 h-10">
+                  <div className="relative w-10 h-10 overflow-hidden rounded-full">
                     <Image
                       alt="Avatar"
                       src={user.avatar}
