@@ -13,6 +13,7 @@ import {
   DialogFooter,
 } from "./ui/dialog";
 import { useState } from "react";
+import { useUser } from "../_viewmodels/use-user";
 
 interface ChatMessageItemProps {
   message: ChatMessage;
@@ -25,7 +26,6 @@ interface ChatMessageItemProps {
   onDelete?: (id: string) => Promise<ChatMessage | null | undefined> | void;
 }
 
-// TODO: Corrigir a aprecição do horário da mensagem, se as mensagens forem em sequencia mas em dias diferentes o horário aparece apenas na primeira mensagem da sequencia.
 // TODO: Adicionar botão de copiar mensagem para o clipboard em mensagens de outros usuários.
 
 export const ChatMessageItem = ({
@@ -38,6 +38,14 @@ export const ChatMessageItem = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(message.content);
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const { users, isLoadingUsers } = useUser();
+
+  if (isLoadingUsers) return null;
+
+  const user = (id: string) => {
+    return users?.find((user) => user.id === id)?.username;
+  };
 
   const startEdit = () => {
     setEditValue(message.content);
@@ -83,7 +91,7 @@ export const ChatMessageItem = ({
               "justify-end flex-row-reverse": isOwnMessage,
             })}
           >
-            <span className={"font-medium"}>{message.user.name}</span>
+            <span className={"font-medium"}>{user(message.user.id)}</span>
             <span className="text-foreground/50 text-xs">
               {new Date(message.created_at).toLocaleTimeString("pt-BR", {
                 hour: "2-digit",

@@ -14,6 +14,7 @@ export interface ChatMessage {
   content: string;
   user: {
     name: string;
+    id: string;
   };
   created_at: string;
   updated_at?: string;
@@ -57,7 +58,7 @@ export function useRealtimeChat({ roomId, username }: UseRealtimeChatProps) {
         const normalized: ChatMessage[] = (msgs as any[]).map((m) => ({
           id: m.id,
           content: m.content,
-          user: { name: m.user?.name ?? "Unknown" },
+          user: { name: m.user?.name ?? "Unknown", id: m.user?.id ?? "" },
           created_at: m.created_at,
         }));
 
@@ -158,7 +159,7 @@ export function useRealtimeChat({ roomId, username }: UseRealtimeChatProps) {
       const message: ChatMessage = {
         id: messageId,
         content,
-        user: { name: username },
+        user: { name: username, id: "" },
         created_at: new Date().toISOString(),
       };
 
