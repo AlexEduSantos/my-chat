@@ -1,12 +1,5 @@
-import MembersList from "@/app/_components/members-list";
-import FriendsList from "./friends-list";
-
 const PageTest = () => {
-  return (
-    <>
-      <FriendsList />
-    </>
-  );
+  return <div className="flex items-center justify-center w-full h-full"></div>;
 };
 
 export default PageTest;

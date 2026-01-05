@@ -22,7 +22,8 @@ export const getUser = async (): Promise<UserData> => {
   return res.json();
 };
 
-export const updateUser = async (data: UpdateUserData): Promise<UserData> => {
+export const updateUser = async (data: UpdateUserData) => {
+  console.log(data);
   const res = await fetch("/api/user", {
     method: "PUT",
     headers: {
@@ -54,6 +55,9 @@ export const uploadAvatar = async (
   const { data: publicUrl } = supabase.storage
     .from("avatars")
     .getPublicUrl(filePath);
+
+  if (!publicUrl) throw new Error("Erro ao obter url do avatar.");
+  
   return [publicUrl.publicUrl];
 };
 

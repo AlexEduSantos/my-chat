@@ -5,10 +5,10 @@ import { useDataContext } from "./_utils/data-context";
 import { UserIcon } from "lucide-react";
 
 const MembersList = () => {
-  const { roomName } = useDataContext();
-  const { members, isLoading, isError } = useMembers(roomName);
+  const { roomId } = useDataContext();
+  const { members, isLoading, isError } = useMembers(roomId);
 
-  if (!roomName) return <p>Selecione uma sala</p>;
+  if (!roomId) return <p>Selecione uma sala</p>;
   if (isLoading) return <p>Carregando membros...</p>;
   if (isError) return <p>Erro ao carregar membros</p>;
   if (!members || members.length === 0) return <p>Nenhum membro no grupo</p>;

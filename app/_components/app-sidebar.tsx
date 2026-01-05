@@ -38,10 +38,13 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Input } from "./ui/input";
-import { rooms } from "../_service/rooms-service";
+import { rooms, getOrCreateDm } from "../_service/rooms-service";
 import { useDataContext } from "./_utils/data-context";
 import { useFriendship } from "../_viewmodels/use-friendship";
 import { Friendships } from "../_service/friendship-service";
+import ProfilePortal from "./profile-portal";
+
+// TODO: criar portal para configurações.
 
 const AppSidebar = () => {
   const { user, isLoading } = useUser();
@@ -57,11 +60,11 @@ const AppSidebar = () => {
 
   const { friendships, isLoading: isLoadingFriendships } = useFriendship();
 
-  const { setRoomName } = useDataContext();
+  const { roomId, setRoomId } = useDataContext();
 
   const { theme, setTheme } = useTheme();
 
-  if (isLoading) return <>Carregando...</>;
+  if (isLoading || isLoadingFriendships) return <>Carregando...</>;
   if (!user) return <>Usuário nao autenticado</>;
 
   if (isLoadingRooms) return <>Carregando salas...</>;
@@ -76,7 +79,7 @@ const AppSidebar = () => {
             <SidebarMenuItem className="flex justify-between items-center p-2">
               <div className="flex gap-2 items-center">
                 {user.avatar?.length ? (
-                  <div className="relative w-10 h-10">
+                  <div className="relative w-10 h-10 overflow-hidden rounded-full">
                     <Image
                       alt="Avatar"
                       src={user.avatar}
@@ -102,9 +105,21 @@ const AppSidebar = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
-                  <DropdownMenuItem>
-                    <SettingsIcon className="w-4 h-4 mr-2" />
-                    <p>Settings</p>
+                  <DropdownMenuItem asChild>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="ghost">
+                          <UserIcon className="w-4 h-4 mr-2" />
+                          <p>Perfil</p>
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Editar Perfil</DialogTitle>
+                        </DialogHeader>
+                        <ProfilePortal />
+                      </DialogContent>
+                    </Dialog>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     {theme === "light" ? (
@@ -126,7 +141,11 @@ const AppSidebar = () => {
                     )}
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <LogOutIcon className="w-4 h-4 mr-2" />
+                    <SettingsIcon className="w-4 h-4 mr-2" />
+                    <p>Configurações</p>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-destructive">
+                    <LogOutIcon className="w-4 h-4 mr-2 text-destructive" />
                     <p>Logout</p>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -198,7 +217,10 @@ const AppSidebar = () => {
                 <SidebarMenuItem key={room.id} className="pl-2 py-2">
                   <SidebarMenuButton
                     className="pl-4 flex justify-between"
-                    onClick={() => setRoomName(room.name)}
+                    onClick={() => {
+                      if (roomId === room.id) return; // evita atualizações redundantes
+                      setRoomId(room.id);
+                    }}
                   >
                     # {room.name}
                     <DropdownMenu>
@@ -236,7 +258,17 @@ const AppSidebar = () => {
                 <SidebarMenuItem key={friend.friend_id} className="pl-2">
                   <SidebarMenuButton
                     className="px-2 py-6 flex gap-2"
-                    onClick={() => setRoomName(friend.username)}
+                    onClick={async () => {
+                      try {
+                        const room = await getOrCreateDm(friend.friend_id);
+                        if (roomId === room.id) return; // evita loop se já estiver na mesma sala
+                        setRoomId(room.id);
+                        refetchRooms();
+                      } catch (err) {
+                        console.error("Erro ao abrir DM", err);
+                        alert("Erro ao abrir conversa direta");
+                      }
+                    }}
                   >
                     <div className="relative w-8 h-8 rounded-full overflow-hidden">
                       <Image

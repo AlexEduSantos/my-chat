@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { v4 as uuid } from "uuid";
 
 interface UseRealtimeChatProps {
-  roomName: string; // pode ser o id da sala (UUID) ou um slug; preferível usar o id (UUID)
+  roomId: string | null; // id da sala (UUID)
   username: string;
 }
 
@@ -14,6 +14,7 @@ export interface ChatMessage {
   content: string;
   user: {
     name: string;
+    id: string;
   };
   created_at: string;
   updated_at?: string;
@@ -23,7 +24,7 @@ const EVENT_MESSAGE_TYPE = "message";
 const EVENT_UPDATE_TYPE = "message:update";
 const EVENT_DELETE_TYPE = "message:delete";
 
-export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
+export function useRealtimeChat({ roomId, username }: UseRealtimeChatProps) {
   const supabase = createClient();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
@@ -32,29 +33,19 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
 
   useEffect(() => {
     setMessages([]);
-  }, [roomName]);
+  }, [roomId]);
 
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
+      if (!roomId) return;
       setIsLoading(true);
       try {
-        const { data: roomData, error: roomError } = await supabase
-          .from("rooms")
-          .select("id")
-          .eq("name", roomName)
-          .single();
-
-        if (roomError || !roomData) {
-          console.error("Error fetching room data", roomError);
-          return;
-        }
-
         const { data: msgs, error } = await supabase
           .from("messages")
           .select("id, content, user, created_at")
-          .eq("room_id", roomData.id)
+          .eq("room_id", roomId)
           .order("created_at", { ascending: true })
           .limit(100);
 
@@ -67,7 +58,7 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
         const normalized: ChatMessage[] = (msgs as any[]).map((m) => ({
           id: m.id,
           content: m.content,
-          user: { name: m.user?.name ?? "Unknown" },
+          user: { name: m.user?.name ?? "Unknown", id: m.user?.id ?? "" },
           created_at: m.created_at,
         }));
 
@@ -87,10 +78,12 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
     return () => {
       cancelled = true;
     };
-  }, [roomName, supabase]);
+  }, [roomId, supabase]);
 
   useEffect(() => {
-    const newChannel = supabase.channel(roomName);
+    if (!roomId) return;
+
+    const newChannel = supabase.channel(roomId);
 
     newChannel
       .on("broadcast", { event: EVENT_MESSAGE_TYPE }, (payload: any) => {
@@ -154,19 +147,19 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomName, supabase]);
+  }, [roomId, supabase]);
 
   // Trecho relevante do hook: função sendMessage que persiste no banco
   const sendMessage = useCallback(
     async (content: string) => {
       const channel = channelRef.current;
-      if (!channel || !isConnected) return;
+      if (!channel || !isConnected || !roomId) return;
 
       const messageId = uuid();
       const message: ChatMessage = {
         id: messageId,
         content,
-        user: { name: username },
+        user: { name: username, id: "" },
         created_at: new Date().toISOString(),
       };
 
@@ -182,17 +175,6 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
         payload: message,
       });
 
-      const { data: roomData, error: roomError } = await supabase
-        .from("rooms")
-        .select("id")
-        .eq("name", roomName)
-        .single();
-
-      if (roomError || !roomData) {
-        console.error("Error fetching room data", roomError);
-        return;
-      }
-
       const { data: user, error: userError } = await supabase
         .from("profiles")
         .select("id")
@@ -203,7 +185,7 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
 
       const { data, error } = await supabase.from("messages").insert({
         id: messageId,
-        room_id: roomData.id,
+        room_id: roomId,
         content,
         user: {
           name: username,
@@ -217,7 +199,7 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
         return;
       }
     },
-    [isConnected, roomName, supabase, username]
+    [isConnected, roomId, supabase, username]
   );
 
   // Atualizar mensagem

@@ -1,19 +1,19 @@
 import { createContext, useContext, useState } from "react";
 
 interface DataContextProps {
-  roomName: any;
-  setRoomName: (data: any) => void;
+  roomId: string | null;
+  setRoomId: (data: string | null) => void;
 }
 
 const DataContext = createContext<DataContextProps>({
-  roomName: "Geral",
-  setRoomName: () => {},
+  roomId: null,
+  setRoomId: () => {},
 });
 
 export const DataContextProvider = ({ children }: any) => {
-  const [roomName, setRoomName] = useState("Geral");
+  const [roomId, setRoomId] = useState<string | null>(null);
   return (
-    <DataContext.Provider value={{ roomName, setRoomName }}>
+    <DataContext.Provider value={{ roomId, setRoomId }}>
       {children}
     </DataContext.Provider>
   );

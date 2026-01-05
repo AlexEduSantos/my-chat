@@ -13,9 +13,12 @@ import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ChatHeader from "./chat-header";
+import { useUser } from "../_viewmodels/use-user";
+
+// TODO: ajustar o header para mensagens recêm enviadas, o nome não está aparecendo.
 
 interface RealtimeChatProps {
-  roomName: string;
+  roomId?: string | null;
   username: string;
   onMessage?: (messages: ChatMessage[]) => void;
   messages?: ChatMessage[];
@@ -23,19 +26,24 @@ interface RealtimeChatProps {
 
 /**
  * Realtime chat component
- * @param roomName - The name of the room to join. Each room is a unique chat.
+ * @param roomId - The id of the room to join (UUID). Each room is a unique chat.
  * @param username - The username of the user
  * @param onMessage - The callback function to handle the messages. Useful if you want to store the messages in a database.
  * @param messages - The messages to display in the chat. Useful if you want to display messages from a database.
  * @returns The chat component
  */
 export const RealtimeChat = ({
-  roomName,
+  roomId,
   username,
   onMessage,
   messages: initialMessages = [],
 }: RealtimeChatProps) => {
   const { containerRef, scrollToBottom } = useChatScroll();
+  const { user, isLoading: isLoadingUser } = useUser();
+
+  if (isLoadingUser) {
+    return <div>Loading...</div>;
+  }
 
   const {
     messages: realtimeMessages,
@@ -45,7 +53,7 @@ export const RealtimeChat = ({
     isConnected,
     isLoading,
   } = useRealtimeChat({
-    roomName,
+    roomId,
     username,
   });
   const [newMessage, setNewMessage] = useState("");
@@ -91,7 +99,7 @@ export const RealtimeChat = ({
   return (
     <div className="flex flex-col h-full w-full bg-background text-foreground antialiased">
       <div className="relative min-w-full h-10 flex justify-end">
-        <ChatHeader roomName={roomName} />
+        <ChatHeader roomId={roomId} />
       </div>
       {/* Messages */}
       <div
@@ -132,7 +140,16 @@ export const RealtimeChat = ({
           {allMessages.map((message, index) => {
             const prevMessage = index > 0 ? allMessages[index - 1] : null;
             const showHeader =
-              !prevMessage || prevMessage.user.name !== message.user.name;
+              !prevMessage ||
+              prevMessage.user.name !== message.user.name ||
+              new Date(prevMessage.created_at).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }) !==
+                new Date(message.created_at).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
             const showDateSeparator =
               !prevMessage ||
               new Date(prevMessage.created_at).toDateString() !==
@@ -146,17 +163,20 @@ export const RealtimeChat = ({
                 {showDateSeparator && (
                   <div className="flex justify-center my-2">
                     <div className="text-xs text-muted-foreground px-2 py-0.5 rounded-full bg-muted/10">
-                      {new Date(message.created_at).toLocaleDateString("pt-BR", {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      })}
+                      {new Date(message.created_at).toLocaleDateString(
+                        "pt-BR",
+                        {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        }
+                      )}
                     </div>
                   </div>
                 )}
-                      <ChatMessageItem
+                <ChatMessageItem
                   message={message}
-                  isOwnMessage={message.user.name === username}
+                  isOwnMessage={message.user.id === user?.id}
                   showHeader={showHeader}
                   onEdit={async (id, content) => {
                     try {

@@ -33,6 +33,7 @@ export async function GET() {
     id: user.id,
     email: user.email,
     username: profile.username,
+    full_name: profile.full_name,
     avatar: profile.avatar_url,
   });
 }
@@ -59,7 +60,7 @@ export async function PUT(req: Request) {
     .from("profiles")
     .update({
       username,
-      avatar,
+      avatar_url: avatar,
       updated_at: new Date().toISOString(),
     })
     .eq("id", user.id);
