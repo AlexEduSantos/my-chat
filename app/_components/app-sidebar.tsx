@@ -43,6 +43,7 @@ import { useDataContext } from "./_utils/data-context";
 import { useFriendship } from "../_viewmodels/use-friendship";
 import { Friendships } from "../_service/friendship-service";
 import ProfilePortal from "./profile-portal";
+import SettingsPortal from "./settings-portal";
 
 // TODO: criar portal para configurações.
 
@@ -108,8 +109,12 @@ const AppSidebar = () => {
                   <DropdownMenuItem asChild>
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button variant="ghost">
-                          <UserIcon className="w-4 h-4 mr-2" />
+                        <Button
+                          variant="menu"
+                          size="menu"
+                          className="items-center justify-start"
+                        >
+                          <UserIcon className="w-4 h-4 mr-1" />
                           <p>Perfil</p>
                         </Button>
                       </DialogTrigger>
@@ -140,12 +145,28 @@ const AppSidebar = () => {
                       </div>
                     )}
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <SettingsIcon className="w-4 h-4 mr-2" />
-                    <p>Configurações</p>
+                  <DropdownMenuItem asChild>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="menu"
+                          size="menu"
+                          className="items-center justify-start"
+                        >
+                          <SettingsIcon className="w-4 h-4 mr-2" />
+                          <p>Configurações</p>
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Configurações</DialogTitle>
+                        </DialogHeader>
+                        <SettingsPortal />
+                      </DialogContent>
+                    </Dialog>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">
-                    <LogOutIcon className="w-4 h-4 mr-2 text-destructive" />
+                  <DropdownMenuItem variant="destructive">
+                    <LogOutIcon className="w-4 h-4 mr-2" />
                     <p>Logout</p>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
